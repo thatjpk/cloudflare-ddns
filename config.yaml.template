@@ -1,0 +1,24 @@
+%YAML 1.2
+# CloudFlare DDNS updater script config.
+---
+
+# CloudFlare API key
+# You can find this under Account > My account after logging into CloudFlare.
+cf_key: 'YOUR KEY HARE'
+
+# Email address for your CloudFlare account.
+cf_email: 'YOUR EMAIL HERE'
+
+# Domain you're using CloudFlare to manage.
+# If the host name you're updating is "ddns.domain.com", make this "domain.com".
+cf_domain: 'YOUR DOMAIN HERE'
+
+# The subdomain you're using for your DDNS A record.
+# If the host name you're updating is "ddns.domain.com", make this "ddns".
+cf_subdomain: 'YOUR SUBDOMAIN HERE'
+
+# The record id of the dns record we're updating.
+# See README for instructions on how to find this.
+cf_record_id: 'YOUR RECORD HERE'
+
+

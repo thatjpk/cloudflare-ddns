@@ -113,6 +113,6 @@ Credits and Thanks
  - [CloudFlare](https://www.cloudflare.com/) for having an API and otherwise
    generally being cool.
  - [jsonip.com](http://jsonip.com/) for making grabbing your public IP from a
-   script super easy. Put together by @geuis. Go to his twitter and shower him
-   with praise.
+   script super easy. Put together by [@geuis](https://twitter.com/geuis). Go
+   to his twitter and shower him with praise.
 

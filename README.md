@@ -65,10 +65,10 @@ CloudFlare's id for the DNS record you want to update.  You'll need to make a
 call to their API to find out what this is. You can use this command
 to make that call:
 
-    curl https://www.cloudflare.com/api_json.html   
-        -d 'a=rec_load_all'   
-        -d 'tkn=368812311fb987a376a39e58bc0793ae18708'   
-        -d 'email=_@jpk.is'   
+    curl https://www.cloudflare.com/api_json.html \
+        -d 'a=rec_load_all' \
+        -d 'tkn=368812311fb987a376a39e58bc0793ae18708' \
+        -d 'email=_@jpk.is' \
         -d 'z=jpk.is' | python -mjson.tool
 
 This should pretty-print a bunch of JSON, part of which will be a list of

@@ -21,8 +21,14 @@ You'll need a python interpreter and the following libraries:
 Usage
 -----
 
-First you'll want to fill out the configuration file. Make a copy of 
-`config.yaml.template` named `config.yaml`, then fill out the options in 
+First, a few assumptions:
+
+  - You have a CloudFlare account.
+  - You're using CF to host DNS for a domain you own.
+  - You have an A record in CF you intend to dynamically update.
+
+Now, to use this script you'll want to fill out the configuration file. Make a 
+copy of `config.yaml.template` named `config.yaml`, then fill out the options in 
 `config.yaml`.  The comments in the file make it fairly self explanatory.
 
 Now to do a one-off update of your DNS record, simply run `cloudflare_ddns.py`

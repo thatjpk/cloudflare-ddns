@@ -6,30 +6,30 @@ import requests
 import json
 import time
 import yaml
-
+import os
 
 # CloudFlare api url.
 CLOUDFLARE_URL = 'https://www.cloudflare.com/api_json.html'
-
 # jsonip api url.
 JSONIP_URL = 'http://jsonip.com'
-
 # Time-to-live for your A record. This should be as small as possible to ensure
 # changes aren't cached for too long and are propogated quickly.  CloudFlare's
 # api docs set a minimum of 120 seconds.
 TTL = '120'
-
 # CloudFlare service mode. This enables/disables CF's traffic acceleration.
 # Enabled (orange cloud) is 1. Disabled (grey cloud) is 0.
 SERVICE_MODE = 0
-
 # DNS record type for your DDNS host. Probably an A record.
 RECORD_TYPE = 'A'
+# Location of this script.
+SCRIPT_ROOT = os.path.dirname(os.path.realpath(__file__))
+# Location of the config file.
+CONFIG_FILE = os.path.join(SCRIPT_ROOT, 'config.yaml')
 
 
 def main():
     # Read config file
-    with open('./config.yaml', 'r') as f:
+    with open(CONFIG_FILE, 'r') as f:
         config = yaml.load(f)
     cf_key = config.get('cf_key')
     cf_email = config.get('cf_email')

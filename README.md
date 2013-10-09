@@ -63,13 +63,13 @@ Getting the CloudFlare Record ID
 The only tricky thing about the configuration is `cf_record_id`.  This is
 CloudFlare's id for the DNS record you want to update.  You'll need to make a
 call to their API to find out what this is. You can use this command
-to make that call:
+to make that call (fill in with your information):
 
     curl https://www.cloudflare.com/api_json.html \
         -d 'a=rec_load_all' \
-        -d 'tkn=368812311fb987a376a39e58bc0793ae18708' \
-        -d 'email=_@jpk.is' \
-        -d 'z=jpk.is' | python -mjson.tool
+        -d 'tkn=YOUR_TOKEN_HERE' \
+        -d 'email=YOUR_EMAIL_HERE' \
+        -d 'z=YOUR_DOMAIN_HERE' | python -mjson.tool
 
 This should pretty-print a bunch of JSON, part of which will be a list of
 objects representing DNS records in your zone.  They look like this:
@@ -109,6 +109,14 @@ Find the one with a `name` field that matches the host you're wanting to update,
 and the `rec_id` field is the record id you want to put in your config.
 (In this case "ddns.domain.com" is the one we're looking for, and it has a
 record id of "12345678".)
+
+Note that if you have a lot of records the response will be paginated, and
+the one you're looking for might be in a later page.  If you can't find your
+record in the first response and the `has_more` field near the start of the
+response is `true`, then that's probably what happened.  Do the request again,
+but add a `-d 'o=N'` parameter to curl where `N` is whatever `count` was in
+the last response.  That'll get the next page of records.  Repeat until you
+find the one you need.
 
 If you want to learn more about the CloudFlare API, you can read on
 [here](http://www.cloudflare.com/docs/client-api.html).

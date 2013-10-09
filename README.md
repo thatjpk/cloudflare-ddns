@@ -14,8 +14,9 @@ Dependencies
 
 You'll need a python interpreter and the following libraries:
 
- - PyYAML (`pip install pyyaml`)
- - Requests (`pip install requests`)
+ - [PyYAML](https://bitbucket.org/xi/pyyaml) (`pip install pyyaml`)
+ - [Requests](http://docs.python-requests.org/en/latest/) (`pip install
+   requests`)
 
 Usage
 -----
@@ -39,14 +40,15 @@ If it fails, it'll print the failure response CloudFlare returns. Check your
 
 If you're like me, though, you probably want it to run periodically in the
 background to keep the record up-to-date as your public IP address changes.
-Just add a line to your crontab and let cron run it for you.  My crontab has a
-line in it like this:
+Just add a line to your [crontab](http://en.wikipedia.org/wiki/Cron) and let
+cron run it for you.  My crontab has a line in it like this:
 
     # Every 15 minutes, check public ip, and update a record on cloudflare.
     */15 * * * * ~/code/cloudflare-ddns/cloudflare-ddns.py >> ~/code/cloudflare-ddns/logs/log.txt
 
-That will update the record every 15 minutes.  The redirection to append to a
-log file is optional, but handy for debugging if you notice the DNS record
+That will update the record every 15 minutes.  You'll want the paths there to
+match up with wherever you checked this repo out.  The redirection to append to
+a log file is optional, but handy for debugging if you notice the DNS record
 isn't staying up-to-date or something.
 
 Getting the CloudFlare Record ID
@@ -102,9 +104,15 @@ and the `rec_id` field is the record id you want to put in your config.
 (In this case "ddns.domain.com" is the one we're looking for, and it has a
 record id of "12345678".)
 
+If you want to learn more about the CloudFlare API, you can read on
+[here](http://www.cloudflare.com/docs/client-api.html).
+
 Credits and Thanks
 ------------------
 
- - CloudFlare for having an API and otherwise generally being cool.
- - jsonip.com for making grabbing your public IP from a script super easy. Put
- together by @geuis. Go to his twitter and shower him with praise.
+ - [CloudFlare](https://www.cloudflare.com/) for having an API and otherwise
+   generally being cool.
+ - [jsonip.com](http://jsonip.com/) for making grabbing your public IP from a
+   script super easy. Put together by @geuis. Go to his twitter and shower him
+   with praise.
+

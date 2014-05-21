@@ -19,14 +19,21 @@ RECORD_TYPE = 'A'
 # Location of this script.
 SCRIPT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
-# Location of the config file.
-CONFIG_FILE = os.path.join(SCRIPT_ROOT, sys.argv[1])
+# If a command-line argument is provided, use that as the config file.
+if len(sys.argv) == 1:
+    CONFIG_FILE = os.path.join(SCRIPT_ROOT, "config.yaml")
+else:
+    CONFIG_FILE = os.path.join(SCRIPT_ROOT, sys.argv[1])
 
 
 def main():
+    if not os.path.isfile(CONFIG_FILE):
+        raise Exception("Configuration file not found. Please review the README and try again.")
+
     # Read config file
     with open(CONFIG_FILE, 'r') as f:
         config = yaml.load(f)
+
     cf_key = config.get('cf_key')
     cf_email = config.get('cf_email')
     cf_domain = config.get('cf_domain')

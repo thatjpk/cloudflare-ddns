@@ -17,8 +17,6 @@ cf_domain: 'YOUR DOMAIN HERE'
 # If the host name you're updating is "ddns.domain.com", make this "ddns".
 cf_subdomain: 'YOUR SUBDOMAIN HERE'
 
-# The record id of the dns record we're updating.
-# See README for instructions on how to find this.
-cf_record_id: 'YOUR RECORD HERE'
-
-
+# CloudFlare service mode. This enables/disables CF's traffic acceleration.
+# Enabled (orange cloud) is 1. Disabled (grey cloud) is 0.
+cf_service_mode: 1

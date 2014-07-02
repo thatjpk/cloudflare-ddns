@@ -31,8 +31,8 @@ To use this utility, create a copy of the `config.yaml.template` file (and
 remove .template from the filename).  Create one template per each record / 
 domain pair you intend to update.  For example, I might have two configuration
 files: `site_naked.yaml` that updates the A record for the naked (no www
-prefix) domain site.com, and a second config, `site_www.yaml` that updates the
-A record for www.site.com.
+prefix) domain site.not, and a second config, `site_www.yaml` that updates the
+A record for www.site.not.
 
 To do a one-off update of your DNS record, simply run `python
 cloudflare_ddns.py config_file_name.yaml` from your terminal.

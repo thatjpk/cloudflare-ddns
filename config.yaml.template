@@ -20,3 +20,8 @@ cf_subdomain: 'YOUR SUBDOMAIN HERE'
 # CloudFlare service mode. This enables/disables CF's traffic acceleration.
 # Enabled (orange cloud) is 1. Disabled (grey cloud) is 0.
 cf_service_mode: 1
+
+# If set to 'true', prints a message only when the record changes or when
+# there's an error.  If set to 'false', prints a message every time even if
+# the record didn't change.
+quiet: 'false'

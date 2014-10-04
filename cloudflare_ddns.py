@@ -69,6 +69,12 @@ def main():
         'o': 0
         }
 
+    # If the config sets empty string as the cf_subdomain, then we don't want
+    # the leading '.'
+    if cf_subdomain is '':
+        target_name = cf_domain
+    else:
+        target_name = str(cf_subdomain + '.' + cf_domain)
     # Results may be paginated, so loop over each page.
     record_id = None
     while not record_id:
@@ -77,7 +83,7 @@ def main():
             msg = "CloudFlare returned an unexpected status code: {}".format(
                 cf_response.status_code
                 )
-            log(now, 'error', cf_subdomain, public_ip, msg)
+            log(now, 'error', target_name, public_ip, msg)
             raise Exception(msg)
 
         response = json.loads(cf_response.text)
@@ -86,14 +92,14 @@ def main():
                 record["type"] == RECORD_TYPE and \
                 (
                     record["name"] == cf_subdomain or \
-                    record["name"] == str(cf_subdomain + "." + cf_domain)
+                    record["name"] == target_name
                     )
                 ):
                 # If this record already has the correct IP, we return early
                 # and don't do anything.
                 if record["content"] == public_ip:
                     if not quiet:
-                        log(now, 'unchanged', cf_subdomain, public_ip)
+                        log(now, 'unchanged', target_name, public_ip)
                     return
 
                 record_id = record["rec_id"]
@@ -108,9 +114,9 @@ def main():
                 msg = \
                     "Can't find an existing {} record matching the " \
                     "name '{}'".format(
-                        RECORD_TYPE, cf_subdomain
+                        RECORD_TYPE, target_name
                         )
-                log(now, 'error', cf_subdomain, public_ip, msg)
+                log(now, 'error', target_name, public_ip, msg)
                 raise Exception(msg)
 
     # Now we've got a record_id and all the good stuff to actually update the
@@ -134,22 +140,23 @@ def main():
         msg = "CloudFlare returned an unexpected status code: {}".format(
             response.status_code
             )
-        log(now, 'error', cf_subdomain, public_ip, msg)
+        log(now, 'error', target_name, public_ip, msg)
         raise Exception(msg)
     response = json.loads(cf_response.text)
 
     if response["result"] == "success":
-        log(now, 'updated', cf_subdomain, public_ip)
+        log(now, 'updated', target_name, public_ip)
     else:
         msg = "Updating record failed with the result '{}'".format(
             response["result"]
             )
-        log(now, 'error', cf_subdomain, public_ip, msg)
+        log(now, 'error', target_name, public_ip, msg)
         raise Exception(msg)
 
     return
 
 
+# TODO use a real logging framework.
 def log(timestamp, status, subdomain, ip_address, message=''):
     print(
         "{date}, {status:>10}, {a:>10}, {ip}, '{message}'".format(

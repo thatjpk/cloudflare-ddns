@@ -58,7 +58,7 @@ def main():
     quiet = 'true' == config.get('quiet')
 
     # Discover your public IP address.
-    public_ip = requests.get("http://icanhazip.com/").text.strip()
+    public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
 
     # Discover the record_id for the record we intend to update.
     cf_params = {

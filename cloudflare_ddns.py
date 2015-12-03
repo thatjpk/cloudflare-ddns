@@ -14,6 +14,7 @@ import time
 import yaml
 import os
 import sys
+from subprocess import Popen, PIPE
 
 # CloudFlare api url.
 CLOUDFLARE_URL = 'https://www.cloudflare.com/api_json.html'
@@ -56,9 +57,22 @@ def main():
     cf_subdomain = config.get('cf_subdomain')
     cf_service_mode = config.get('cf_service_mode')
     quiet = 'true' == config.get('quiet')
+    aws_use_ec2metadata = config.get('aws_use_ec2metadata')
 
     # Discover your public IP address.
-    public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
+    if aws_use_ec2metadata:
+      try:
+        p = Popen(["ec2metadata", "--public-ip"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        rc = p.returncode
+        public_ip = output.rstrip('\n')
+      except:
+        msg = "Failed to query AWS ec2metadata for public IP"
+        log(now, 'critical', '(no conf)', '(no conf)', msg)
+    raise Exception(msg)
+    else:
+      public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
+
 
     # Discover the record_id for the record we intend to update.
     cf_params = {

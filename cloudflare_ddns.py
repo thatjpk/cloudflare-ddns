@@ -69,7 +69,7 @@ def main():
       except:
         msg = "Failed to query AWS ec2metadata for public IP"
         log(now, 'critical', '(no conf)', '(no conf)', msg)
-    raise Exception(msg)
+        raise Exception(msg)
     else:
       public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
 

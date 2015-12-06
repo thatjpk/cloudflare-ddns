@@ -25,3 +25,7 @@ cf_service_mode: 1
 # there's an error.  If set to 'false', prints a message every time even if
 # the record didn't change.
 quiet: 'false'
+
+# If set to true then we call the ec2metadata service for the instance
+# public ip address rather than an external service.
+aws_use_ec2metadata: false

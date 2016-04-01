@@ -8,6 +8,7 @@
 # See README for details
 #
 
+from __future__ import print_function
 import requests
 import json
 import time
@@ -15,6 +16,10 @@ import yaml
 import os
 import sys
 from subprocess import Popen, PIPE
+
+# FIXME
+from __version import VERSION
+print("Version: {}".format(VERSION))
 
 # CloudFlare api url.
 CLOUDFLARE_URL = 'https://www.cloudflare.com/api_json.html'

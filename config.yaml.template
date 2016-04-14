@@ -4,7 +4,7 @@
 
 # CloudFlare API key
 # You can find this under Account > My account after logging into CloudFlare.
-cf_key: 'YOUR KEY HARE'
+cf_key: 'YOUR KEY HERE'
 
 # Email address for your CloudFlare account.
 cf_email: 'YOUR EMAIL HERE'
@@ -15,6 +15,9 @@ cf_domain: 'YOUR DOMAIN HERE'
 
 # The subdomain you're using for your DDNS A record.
 # If the host name you're updating is "ddns.domain.com", make this "ddns".
+# However, if you're updating the A record for the naked domain (that is, just
+# "domain.com" without a subdomain), then set cf_subdomain to the same value
+# as cf_domain.
 cf_subdomain: 'YOUR SUBDOMAIN HERE'
 
 # CloudFlare service mode. This enables/disables CF's traffic acceleration.

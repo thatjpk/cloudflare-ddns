@@ -17,7 +17,7 @@ import sys
 from subprocess import Popen, PIPE
 
 # CloudFlare api url.
-CLOUDFLARE_URL = 'https://www.cloudflare.com/api_json.html'
+CLOUDFLARE_URL = 'https://api.cloudflare.com/client/v4'
 
 # Time-to-live for your A record. This should be as small as possible to ensure
 # changes aren't cached for too long and are propogated quickly.  CloudFlare's
@@ -38,14 +38,11 @@ else:
 
 
 def main():
-    now = time.ctime()
-
     if not os.path.isfile(CONFIG_FILE):
-        msg = \
-            "Configuration file not found. Please review the README and try " \
+        die(
+            "Configuration file not found. Please review the README and try "
             "again."
-        log(now, 'error', '(no conf)', '(no conf)', msg)
-        raise Exception(msg)
+        )
 
     # Read config file
     with open(CONFIG_FILE, 'r') as f:
@@ -59,128 +56,156 @@ def main():
     quiet = 'true' == config.get('quiet')
     aws_use_ec2metadata = config.get('aws_use_ec2metadata')
 
-    # Discover your public IP address.
+    auth_headers = {
+        'X-Auth-Key': cf_key,
+        'X-Auth-Email': cf_email,
+    }
+
+    ### Discover your public IP address.
     if aws_use_ec2metadata:
       try:
-        p = Popen(["ec2metadata", "--public-ip"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        p = Popen(
+            ["ec2metadata", "--public-ip"],
+            stdin=PIPE,
+            stdout=PIPE,
+            stderr=PIPE,
+        )
         output, err = p.communicate()
         rc = p.returncode
         public_ip = output.rstrip('\n')
       except:
-        msg = "Failed to query AWS ec2metadata for public IP"
-        log(now, 'critical', '(no conf)', '(no conf)', msg)
-        raise Exception(msg)
+        die("Failed to query AWS ec2metadata for public IP")
     else:
-      public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
+        public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
+        # public_ip = '127.0.0.100'
 
+    ### Get zone id for the dns record we want to update
+    results = get_paginated_results(
+        'GET',
+        CLOUDFLARE_URL + '/zones',
+        auth_headers,
+    )
+    cf_zone_id = None
+    for zone in results:
+        zone_name = zone['name']
+        zone_id = zone['id']
+        if zone_name == cf_domain:
+            cf_zone_id = zone_id
+            break
+    if cf_zone_id is None:
+        raise Exception("Snap, can't find zone '{}'".format(cf_domain))
 
-    # Discover the record_id for the record we intend to update.
-    cf_params = {
-        'a': 'rec_load_all',
-        'tkn': cf_key,
-        'email': cf_email,
-        'z': cf_domain,
-        'o': 0
-        }
-
-    # If the config sets empty string as the cf_subdomain, then we don't want
-    # the leading '.'
-    if cf_subdomain is '':
+    ### Get record id for the record we want to update
+    if cf_subdomain == '':
         target_name = cf_domain
     else:
-        target_name = str(cf_subdomain + '.' + cf_domain)
-    # Results may be paginated, so loop over each page.
-    record_id = None
-    while not record_id:
-        cf_response = requests.get(CLOUDFLARE_URL, params=cf_params)
-        if cf_response.status_code < 200 or cf_response.status_code > 299:
-            msg = "CloudFlare returned an unexpected status code: {}".format(
-                cf_response.status_code
-                )
-            log(now, 'error', target_name, public_ip, msg)
-            raise Exception(msg)
+        target_name = cf_subdomain + '.' + cf_domain
+    results = get_paginated_results(
+        'GET',
+        CLOUDFLARE_URL + '/zones/' + cf_zone_id + '/dns_records',
+        auth_headers,
+    )
+    cf_record_obj = None
+    for record in results:
+        record_id = record['id']
+        record_name = record['name']
+        if record_name == target_name:
+            cf_record_obj = record
+            break
+    if cf_record_obj is None:
+        raise Exception("Snap, can't find record '{}'".format(target_name))
 
-        response = json.loads(cf_response.text)
-        for record in response["response"]["recs"]["objs"]:
-            if (
-                record["type"] == RECORD_TYPE and \
-                (
-                    record["name"] == cf_subdomain or \
-                    record["name"] == target_name
-                    )
-                ):
-                # If this record already has the correct IP, we return early
-                # and don't do anything.
-                if record["content"] == public_ip:
-                    if not quiet:
-                        log(now, 'unchanged', target_name, public_ip)
-                    return
+    print(json.dumps(cf_record_obj, indent=4))
 
-                record_id = record["rec_id"]
+    ### Update the record
+    current_record_ip = cf_record_obj['content']
+    if current_record_ip == public_ip:
+        # If this record already has the correct IP, we return early
+        # and don't do anything.
+        if not quiet:
+            log('unchanged', '{}, {}'.format(target_name, public_ip))
+        return
 
-        # We didn't see a result. Check if the response was paginated and if
-        # so, call another page.
-        if not record_id:
-            if response["response"]["recs"]["has_more"]:
-                # Set a new start point
-                cf_params["o"] = response["response"]["recs"]["count"] 
-            else:
-                msg = \
-                    "Can't find an existing {} record matching the " \
-                    "name '{}'".format(
-                        RECORD_TYPE, target_name
-                        )
-                log(now, 'error', target_name, public_ip, msg)
-                raise Exception(msg)
-
-    # Now we've got a record_id and all the good stuff to actually update the
-    # record, so let's do it.
-
-    cf_params = {
-        'a': 'rec_edit',
-        'tkn': cf_key,
-        'id': record_id,
-        'email': cf_email,
-        'z': cf_domain,
-        'type': RECORD_TYPE,
-        'ttl': TTL,
-        'name': cf_subdomain,
-        'content': public_ip,
-        'service_mode': cf_service_mode
-        }
-
-    cf_response = requests.get(CLOUDFLARE_URL, params=cf_params)
-    if cf_response.status_code < 200 or cf_response.status_code > 299:
-        msg = "CloudFlare returned an unexpected status code: {}".format(
-            response.status_code
-            )
-        log(now, 'error', target_name, public_ip, msg)
-        raise Exception(msg)
-    response = json.loads(cf_response.text)
-
-    if response["result"] == "success":
-        log(now, 'updated', target_name, public_ip)
+    cf_record_obj['content'] = public_ip
+    r = requests.put(
+        CLOUDFLARE_URL
+            + '/zones/'
+            + cf_zone_id
+            + '/dns_records/'
+            + cf_record_obj['id'],
+        headers=auth_headers,
+        json=cf_record_obj
+    )
+    status_was_error = False
+    if r.status_code < 200 or r.status_code > 299:
+        log(
+            'error',
+            "CloudFlare returned an unexpected status code: {}, for "
+            "dns_records update request."
+            .format(r.status_code)
+        )
+        status_was_error = True
+    response = r.json()
+    if response["errors"] or status_was_error:
+        die("Updating record failed with the response: '{}'".format(
+            json.dumps(response)
+        ))
     else:
-        msg = "Updating record failed with the result '{}'".format(
-            response["result"]
-            )
-        log(now, 'error', target_name, public_ip, msg)
-        raise Exception(msg)
+        log('updated', "{}, {}".format(target_name, public_ip))
+
 
     return
 
 
-# TODO use a real logging framework.
-def log(timestamp, status, subdomain, ip_address, message=''):
-    print(
-        "{date}, {status:>10}, {a:>10}, {ip}, '{message}'".format(
-            date=timestamp,
-            status=status,
-            a=subdomain,
-            ip=ip_address,
-            message=message
-            )
+def die(msg):
+    log('error', msg)
+    raise Exception(msg)
+
+
+def get_paginated_results(method, url, auth_headers):
+    """
+    Executes the cloudflare api call, fetches all pages and returns the
+    concatenated result array.
+    """
+
+    results = []
+    page = 0
+    total_pages = None
+    while page != total_pages:
+        page += 1
+        r = requests.request(
+            method,
+            url,
+            params={'page': page},
+            headers=auth_headers
         )
+
+        if r.status_code < 200 or r.status_code > 299:
+            die(
+                "CloudFlare returned an unexpected status code: {}, for "
+                "request: {}"
+                .format(
+                    r.status_code,
+                    url
+                )
+            )
+
+        response = r.json()
+        results.extend(response['result'])
+        total_pages = response['result_info']['total_pages']
+    return results
+
+
+
+# TODO use a real logging framework.
+def log(status, message=''):
+    print(
+        "{date}, {status:>10}, '{message}'".format(
+            date=time.ctime(),
+            status=status,
+            message=message
+        )
+    )
     return
 
 

@@ -76,7 +76,7 @@ def main():
       except:
         die("Failed to query AWS ec2metadata for public IP")
     else:
-        public_ip = requests.get("http://ipv4.icanhazip.com/").text.strip()
+        public_ip = requests.get("https://ipv4.icanhazip.com/").text.strip()
         # public_ip = '127.0.0.100'
 
     ### Get zone id for the dns record we want to update

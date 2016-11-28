@@ -55,6 +55,7 @@ def main():
     cf_service_mode = config.get('cf_service_mode')
     quiet = 'true' == config.get('quiet')
     aws_use_ec2metadata = config.get('aws_use_ec2metadata')
+    use_dig = config.get('use_dig')
 
     auth_headers = {
         'X-Auth-Key': cf_key,
@@ -75,6 +76,11 @@ def main():
         public_ip = output.rstrip('\n')
       except:
         die("Failed to query AWS ec2metadata for public IP")
+    elif use_dig:
+        p = Popen(["dig", "+short", "myip.opendns.com", "@resolver1.opendns.com"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        output, err = p.communicate()
+        rc = p.returncode
+        public_ip = output.decode().rstrip()
     else:
         public_ip = requests.get("https://ipv4.icanhazip.com/").text.strip()
         # public_ip = '127.0.0.100'

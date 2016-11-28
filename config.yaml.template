@@ -24,11 +24,15 @@ cf_subdomain: 'YOUR SUBDOMAIN HERE'
 # Enabled (orange cloud) is 1. Disabled (grey cloud) is 0.
 cf_service_mode: 1
 
-# If set to 'true', prints a message only when the record changes or when
+# If set to true, prints a message only when the record changes or when
 # there's an error.  If set to 'false', prints a message every time even if
 # the record didn't change.
-quiet: 'false'
+quiet: false
 
 # If set to true then we call the ec2metadata service for the instance
 # public ip address rather than an external service.
 aws_use_ec2metadata: false
+
+# If set to true dig will be used to fetch the public IP which is better
+# but not available on all systems.
+use_dig: false

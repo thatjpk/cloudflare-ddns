@@ -81,11 +81,8 @@ def main():
         output, err = p.communicate()
         rc = p.returncode
         public_ip = output.decode().rstrip()
-        print("Dig used");
-        print(public_ip)
     else:
         public_ip = requests.get("https://ipv4.icanhazip.com/").text.strip()
-        print("I can hazip");
         # public_ip = '127.0.0.100'
 
     ### Get zone id for the dns record we want to update

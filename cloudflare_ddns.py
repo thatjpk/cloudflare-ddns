@@ -53,7 +53,7 @@ def main():
     cf_domain = config.get('cf_domain')
     cf_subdomain = config.get('cf_subdomain')
     cf_service_mode = config.get('cf_service_mode')
-    quiet = 'true' == config.get('quiet')
+    quiet = config.get('quiet')
     aws_use_ec2metadata = config.get('aws_use_ec2metadata')
     use_dig = config.get('use_dig')
 
@@ -121,7 +121,8 @@ def main():
     if cf_record_obj is None:
         raise Exception("Snap, can't find record '{}'".format(target_name))
 
-    print(json.dumps(cf_record_obj, indent=4))
+    if not quiet:
+        print(json.dumps(cf_record_obj, indent=4))
 
     ### Update the record
     current_record_ip = cf_record_obj['content']

@@ -18,6 +18,10 @@ You'll need a python interpreter and the following libraries:
  - [Requests](http://docs.python-requests.org/en/latest/) (`pip install
    requests`)
 
+You can install them with `pip` :
+
+	pip install -r requirements.txt
+
 Usage
 -----
 

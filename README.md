@@ -56,7 +56,7 @@ Just add a line to your [crontab](http://en.wikipedia.org/wiki/Cron) and let
 cron run it for you at a regular interval.
 
     # Every 15 minutes, check the current public IP, and update the A record on CloudFlare.
-    */15 * * * * /path/to/code/cloudflare-ddns.py /path/to/code/config.yaml >> /var/log/cloudflare_ddns.log
+    */15 * * * * /path/to/code/cloudflare_ddns.py /path/to/code/config.yaml >> /var/log/cloudflare_ddns.log
 
 This example will update the record every 15 minutes.  You'll want to be sure
 that you insert the correct paths to reflect were the codebase is located.

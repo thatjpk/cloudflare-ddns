@@ -16,8 +16,7 @@ cf_domain: 'YOUR DOMAIN HERE'
 # The subdomain you're using for your DDNS A record.
 # If the host name you're updating is "ddns.domain.com", make this "ddns".
 # However, if you're updating the A record for the naked domain (that is, just
-# "domain.com" without a subdomain), then set cf_subdomain to the same value
-# as cf_domain.
+# "domain.com" without a subdomain), then set cf_subdomain to an empty value.
 cf_subdomain: 'YOUR SUBDOMAIN HERE'
 
 # CloudFlare service mode. This enables/disables CF's traffic acceleration.

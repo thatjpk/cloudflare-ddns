@@ -1,6 +1,9 @@
 cloudflare-ddns
 ===============
 
+
+*Deprecated*:  Since I no longer use this I don't have much motivation to deal with issues/PRs.  Feel free to check out [Ethaligan's fork](https://github.com/Ethaligan/cloudflare-ddns).
+
 Introduction
 ------------
 
